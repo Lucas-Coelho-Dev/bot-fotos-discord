@@ -1,3 +1,5 @@
+FROM cloudflare/cloudflared:2023.10.0 AS cloudflared
+
 FROM node:22-bookworm-slim AS build
 
 WORKDIR /app
@@ -18,8 +20,11 @@ RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 COPY --from=build /app/dist ./dist
 COPY public ./public
+COPY --from=cloudflared /usr/local/bin/cloudflared /tmp/node-untun/cloudflared.2023.10.0
 
-RUN mkdir -p /app/data && chown -R node:node /app
+RUN chmod 0755 /tmp/node-untun/cloudflared.2023.10.0 \
+    && mkdir -p /app/data \
+    && chown -R node:node /app /tmp/node-untun
 
 USER node
 

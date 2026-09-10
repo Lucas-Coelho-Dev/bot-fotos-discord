@@ -128,6 +128,7 @@ O projeto inclui uma imagem de produção em duas etapas e um arquivo Docker Com
 - limita os logs a 3 arquivos de 10 MB;
 - publica a aplicação na porta `3000`;
 - salva canais e sessões no volume persistente `bot_fotos_data`;
+- inclui o executável do Cloudflare Tunnel na imagem, evitando downloads a cada implantação;
 - executa como usuário sem privilégios;
 - possui verificação automática de saúde.
 
