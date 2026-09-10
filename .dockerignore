@@ -1,0 +1,9 @@
+.env
+.git
+.gitignore
+data
+dist
+node_modules
+npm-debug.log*
+README.md
+test-server.ts

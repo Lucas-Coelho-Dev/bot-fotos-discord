@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Envio de Fotos - Discord</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+      </div>
+      <h1>Envio de Fotos</h1>
+      <p class="subtitle">Envie fotos diretamente para o chat do colaborador no Discord</p>
+    </header>
+
+    <!-- Estado: Link Inválido ou Expirado -->
+    <div id="expiredScreen" class="card status-card hidden">
+      <div class="status-icon error">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+      </div>
+      <h2>Link Expirado ou Inválido</h2>
+      <p>Este link de envio não existe ou já passou do limite de 24 horas. Por favor, solicite um novo QR Code digitando <code>/foto</code> no Discord.</p>
+    </div>
+
+    <!-- Formulário Principal -->
+    <main id="uploadFormContainer">
+      <!-- Card com QR Code para escanear com o celular -->
+      <div id="qrCodeCard" class="card qrcode-card">
+        <div class="qrcode-wrapper">
+          <img id="qrCodeImg" src="" alt="QR Code para envio pelo celular">
+        </div>
+        <div class="qrcode-info">
+          <h3>📱 Escanear com o Celular</h3>
+          <p>Aponte a câmera do seu telefone para abrir e enviar as fotos direto do aparelho.</p>
+        </div>
+      </div>
+
+      <form id="uploadForm" class="upload-form">
+        <!-- Campos de Identificação -->
+        <div class="card form-section">
+          <h3>Identificação</h3>
+
+          <div class="input-group">
+            <label for="clientName">Seu Nome</label>
+            <input type="text" id="clientName" name="clientName" placeholder="Ex: Lucas" required autocomplete="name">
+          </div>
+
+          <div class="input-group">
+            <label for="workplace">Onde você trabalha / Unidade</label>
+            <input type="text" id="workplace" name="workplace" placeholder="Ex: Loja Vasco Barra Shopping" required>
+          </div>
+        </div>
+
+        <!-- Seção de Fotos -->
+        <div class="card form-section">
+          <div class="section-title-row">
+            <h3>Fotos para Envio</h3>
+            <span class="badge" id="photoCountBadge">0 / 3</span>
+          </div>
+          <p class="section-hint">Você pode tirar foto com a câmera ou escolher da galeria (máximo 3 fotos).</p>
+
+          <!-- Inputs Ocultos Separados para Câmera e Galeria -->
+          <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input">
+          <input type="file" id="galleryInput" accept="image/*" multiple class="hidden-input">
+
+          <!-- Botões de Ação Separados: Câmera e Galeria -->
+          <div class="picker-buttons-grid">
+            <button type="button" id="cameraBtn" class="btn-picker-card">
+              <div class="picker-icon camera">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+              </div>
+              <span class="picker-title">Tirar Foto</span>
+              <span class="picker-sub">Abrir Câmera</span>
+            </button>
+
+            <button type="button" id="galleryBtn" class="btn-picker-card">
+              <div class="picker-icon gallery">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </div>
+              <span class="picker-title">Galeria</span>
+              <span class="picker-sub">Escolher Fotos</span>
+            </button>
+          </div>
+
+          <!-- Grid de Preview -->
+          <div id="previewGrid" class="preview-grid"></div>
+        </div>
+
+        <!-- Mensagens de Alerta -->
+        <div id="errorAlert" class="alert error hidden"></div>
+
+        <!-- Botão de Envio -->
+        <button type="submit" id="submitBtn" class="btn-submit" disabled>
+          <span class="btn-text">Confirmar e Enviar Fotos</span>
+          <div class="spinner hidden" id="loadingSpinner"></div>
+        </button>
+      </form>
+    </main>
+
+    <!-- Tela de Sucesso -->
+    <div id="successScreen" class="card status-card hidden">
+      <div class="status-icon success">
+        <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <h2>Fotos Enviadas com Sucesso!</h2>
+      <p>As fotos já foram entregues diretamente no chat do colaborador no Discord.</p>
+      <div class="success-actions">
+        <button type="button" id="sendMoreBtn" class="btn-secondary">
+          Enviar mais fotos neste mesmo atendimento
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Sessão vinculada ao canal de atendimento • Válida por 24h</p>
+    </footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
