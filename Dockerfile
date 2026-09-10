@@ -21,6 +21,7 @@ RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 COPY --from=build /app/dist ./dist
 COPY public ./public
 COPY --from=cloudflared /usr/local/bin/cloudflared /tmp/node-untun/cloudflared.2023.10.0
+COPY --from=cloudflared /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 RUN chmod 0755 /tmp/node-untun/cloudflared.2023.10.0 \
     && mkdir -p /app/data \
