@@ -129,6 +129,7 @@ O projeto inclui uma imagem de produção em duas etapas e um arquivo Docker Com
 - publica a aplicação na porta `3000`;
 - salva canais e sessões no volume persistente `bot_fotos_data`;
 - inclui o executável do Cloudflare Tunnel na imagem, evitando downloads a cada implantação;
+- desativa a atualização automática do túnel para que o endereço público não mude durante a execução;
 - executa como usuário sem privilégios;
 - possui verificação automática de saúde.
 
