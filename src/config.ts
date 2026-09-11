@@ -11,6 +11,7 @@ export interface Config {
   adminRoleId?: string;
   port: number;
   publicUrl?: string;
+  uptimeKumaPushUrl?: string;
 }
 
 export const config: Config = {
@@ -21,6 +22,7 @@ export const config: Config = {
   adminRoleId: process.env.ADMIN_ROLE_ID || undefined,
   port: parseInt(process.env.PORT || '3000', 10),
   publicUrl: process.env.PUBLIC_URL ? process.env.PUBLIC_URL.replace(/\/$/, '') : undefined,
+  uptimeKumaPushUrl: process.env.UPTIME_KUMA_PUSH_URL || undefined,
 };
 
 export function validateConfig(): void {

@@ -12,6 +12,7 @@ services:
       NO_AUTOUPDATE: "true"
       TZ: America/Sao_Paulo
       PORT: 3000
+      UPTIME_KUMA_PUSH_URL: ${UPTIME_KUMA_PUSH_URL:-}
     ports:
       - "3000:3000"
     volumes:

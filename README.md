@@ -67,6 +67,7 @@ DISCORD_CATEGORY_ID=seu_category_id_aqui
 ADMIN_ROLE_ID=
 PORT=3000
 PUBLIC_URL=
+UPTIME_KUMA_PUSH_URL=
 ```
 
 *Como obter os IDs:*
@@ -75,6 +76,7 @@ PUBLIC_URL=
 - Clique com o botão direito na categoria onde quer criar os canais -> **Copiar ID da Categoria** (`DISCORD_CATEGORY_ID`).
 - `ADMIN_ROLE_ID`: (Opcional) ID do cargo de gerência para ter acesso aos canais privados.
 - `PUBLIC_URL`: (Opcional) Deixe em branco para usar o Cloudflare Tunnel automático grátis.
+- `UPTIME_KUMA_PUSH_URL`: (Opcional) URL de Push fornecida pelo Uptime Kuma. Quando configurada, o bot envia um heartbeat a cada 60 segundos após conectar ao Discord.
 
 ---
 
@@ -132,6 +134,7 @@ O projeto inclui uma imagem de produção em duas etapas e um arquivo Docker Com
 - desativa a atualização automática do túnel para que o endereço público não mude durante a execução;
 - executa como usuário sem privilégios;
 - possui verificação automática de saúde.
+- envia heartbeat opcional ao Uptime Kuma a cada 60 segundos.
 
 ### Executar com Docker Compose
 

@@ -2,8 +2,11 @@ import { config, validateConfig } from './config.js';
 import { initPublicUrl, closeTunnel } from './services/tunnel.js';
 import { discordClient, initBot } from './bot.js';
 import { createServer } from './server.js';
+import { startUptimeKumaHeartbeat } from './services/uptimeKuma.js';
 
 async function main() {
+  let stopUptimeKumaHeartbeat = () => {};
+
   console.log('======================================================');
   console.log('       DISCORD PHOTO BOT - INICIANDO SISTEMA          ');
   console.log('======================================================\n');
@@ -29,6 +32,7 @@ async function main() {
   if (config.discordToken) {
     console.log('🤖 Conectando ao Discord...');
     await initBot();
+    stopUptimeKumaHeartbeat = startUptimeKumaHeartbeat(config.uptimeKumaPushUrl);
   } else {
     console.log('\n👉 Para conectar o bot ao Discord:');
     console.log('   Preencha o arquivo .env com seu DISCORD_TOKEN, DISCORD_CLIENT_ID e DISCORD_GUILD_ID.');
@@ -37,6 +41,7 @@ async function main() {
   // Graceful shutdown
   const handleShutdown = async () => {
     console.log('\n🛑 Encerrando aplicação com segurança...');
+    stopUptimeKumaHeartbeat();
     await closeTunnel();
     await server.close();
     discordClient.destroy();
