@@ -20,7 +20,24 @@ const btnText = submitBtn.querySelector('.btn-text');
 const loadingSpinner = document.getElementById('loadingSpinner');
 const errorAlert = document.getElementById('errorAlert');
 const sendMoreBtn = document.getElementById('sendMoreBtn');
+const qrCodeCard = document.getElementById('qrCodeCard');
 const qrCodeImg = document.getElementById('qrCodeImg');
+
+// O QR Code começa oculto no HTML para nunca aparecer brevemente no celular.
+// Ele só é revelado quando a página é aberta em um dispositivo desktop e não
+// veio de um QR Code.
+const openedFromQrCode = new URLSearchParams(window.location.search).get('source') === 'qr';
+const userAgent = navigator.userAgent || '';
+const isMobileDevice =
+  navigator.userAgentData?.mobile === true ||
+  /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(userAgent) ||
+  (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1) ||
+  (window.matchMedia('(pointer: coarse)').matches && window.matchMedia('(max-width: 900px)').matches);
+const shouldShowQrCode = !openedFromQrCode && !isMobileDevice;
+
+if (qrCodeCard && shouldShowQrCode) {
+  qrCodeCard.classList.remove('hidden');
+}
 
 // Estado das fotos selecionadas (limite máximo de 3)
 let selectedFiles = [];
@@ -33,8 +50,8 @@ async function checkSession() {
     return;
   }
 
-  // Carrega o QR Code da sessão
-  if (qrCodeImg) {
+  // Só baixa a imagem do QR Code quando o cartão realmente será exibido.
+  if (qrCodeImg && shouldShowQrCode) {
     qrCodeImg.src = `/api/qrcode/${sessionToken}`;
   }
 

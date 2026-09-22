@@ -66,7 +66,7 @@ export function createServer(discordClient: Client): FastifyInstance {
       const { getPublicUrl } = await import('./services/tunnel.js');
       const { generateQrCodeBuffer } = await import('./services/qrCodeService.js');
       const baseUrl = getPublicUrl();
-      const uploadUrl = `${baseUrl}/upload/${token}`;
+      const uploadUrl = `${baseUrl}/upload/${token}?source=qr`;
       const qrBuffer = await generateQrCodeBuffer(uploadUrl);
 
       return reply.type('image/png').send(qrBuffer);

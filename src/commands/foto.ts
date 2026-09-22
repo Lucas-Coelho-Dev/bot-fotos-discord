@@ -34,9 +34,10 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     // 2. Obtém a URL pública (via Cloudflare Tunnel ou configurada)
     const baseUrl = getPublicUrl();
     const uploadUrl = `${baseUrl}/upload/${session.token}`;
+    const qrUploadUrl = `${uploadUrl}?source=qr`;
 
     // 3. Gera a imagem do QR Code
-    const qrBuffer = await generateQrCodeBuffer(uploadUrl);
+    const qrBuffer = await generateQrCodeBuffer(qrUploadUrl);
     const qrAttachment = new AttachmentBuilder(qrBuffer, { name: 'qrcode.png' });
 
     // 4. Monta o Embed explicativo
