@@ -6,6 +6,7 @@ import path from 'path';
 import { Client, EmbedBuilder, AttachmentBuilder, TextChannel } from 'discord.js';
 import { sessionStore } from './services/sessionStore.js';
 import { config } from './config.js';
+import { isPublicUrlReady } from './services/tunnel.js';
 
 export function createServer(discordClient: Client): FastifyInstance {
   const app = fastify({
@@ -31,6 +32,20 @@ export function createServer(discordClient: Client): FastifyInstance {
   app.register(fastifyStatic, {
     root: publicDir,
     prefix: '/',
+  });
+
+  // O container só é considerado saudável quando o bot consegue atender
+  // completamente: Discord conectado e URL pública disponível.
+  app.get('/health', async (_req, reply) => {
+    const discordReady = discordClient.isReady();
+    const tunnelReady = isPublicUrlReady();
+    const ready = discordReady && tunnelReady;
+
+    return reply.status(ready ? 200 : 503).send({
+      status: ready ? 'ok' : 'starting',
+      discordReady,
+      tunnelReady,
+    });
   });
 
   // Rota para a página de upload: /upload/:token

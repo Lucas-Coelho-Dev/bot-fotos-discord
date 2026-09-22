@@ -1,5 +1,5 @@
 import { config, validateConfig } from './config.js';
-import { initPublicUrl, closeTunnel } from './services/tunnel.js';
+import { initPublicUrl, closeTunnel, isPublicUrlReady } from './services/tunnel.js';
 import { discordClient, initBot } from './bot.js';
 import { createServer } from './server.js';
 import { startUptimeKumaHeartbeat } from './services/uptimeKuma.js';
@@ -24,15 +24,18 @@ async function main() {
     process.exit(1);
   }
 
-  // 2. Inicia o Cloudflare Tunnel para obter URL HTTPS pública e gratuita
-  const publicUrl = await initPublicUrl();
-  console.log(`🔗 URL pública pronta para o QR Code: ${publicUrl}`);
+  // 2. Inicia o Cloudflare Tunnel em segundo plano. Uma falha de rede não
+  // bloqueia mais a conexão do bot com o Discord.
+  initPublicUrl();
 
   // 3. Conecta o Bot do Discord (se o token estiver configurado)
   if (config.discordToken) {
     console.log('🤖 Conectando ao Discord...');
     await initBot();
-    stopUptimeKumaHeartbeat = startUptimeKumaHeartbeat(config.uptimeKumaPushUrl);
+    stopUptimeKumaHeartbeat = startUptimeKumaHeartbeat(
+      config.uptimeKumaPushUrl,
+      () => discordClient.isReady() && isPublicUrlReady()
+    );
   } else {
     console.log('\n👉 Para conectar o bot ao Discord:');
     console.log('   Preencha o arquivo .env com seu DISCORD_TOKEN, DISCORD_CLIENT_ID e DISCORD_GUILD_ID.');
