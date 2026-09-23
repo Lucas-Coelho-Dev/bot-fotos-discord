@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 import { sessionStore } from '../services/sessionStore.js';
 import { generateQrCodeBuffer } from '../services/qrCodeService.js';
-import { getPublicUrl } from '../services/tunnel.js';
+import { waitForPublicUrl } from '../services/tunnel.js';
 
 export const data = new SlashCommandBuilder()
   .setName('foto')
@@ -28,11 +28,11 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   await interaction.deferReply();
 
   try {
-    // 1. Cria a sessão com validade de 24h vinculada ao canal atual
-    const session = sessionStore.createSession(channel.id, user.id, guild.id);
+    // 1. Aguarda uma URL pública válida. Nunca gera links com localhost.
+    const baseUrl = await waitForPublicUrl();
 
-    // 2. Obtém a URL pública (via Cloudflare Tunnel ou configurada)
-    const baseUrl = getPublicUrl();
+    // 2. Cria a sessão somente depois que o link público estiver disponível.
+    const session = sessionStore.createSession(channel.id, user.id, guild.id);
     const uploadUrl = `${baseUrl}/upload/${session.token}`;
     const qrUploadUrl = `${uploadUrl}?source=qr`;
 

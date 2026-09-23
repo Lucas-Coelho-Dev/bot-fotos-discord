@@ -16,6 +16,8 @@ const TUNNEL_MONITOR_INTERVAL_MS = 30_000;
 const TUNNEL_PROBE_TIMEOUT_MS = 10_000;
 const TUNNEL_PROBE_FAILURE_LIMIT = 2;
 const TUNNEL_PROBE_PATH = '/upload/__tunnel_probe__';
+const PUBLIC_URL_WAIT_TIMEOUT_MS = 120_000;
+const PUBLIC_URL_POLL_INTERVAL_MS = 250;
 
 function localFallbackUrl(): string {
   return `http://localhost:${config.port}`;
@@ -189,7 +191,40 @@ export function initPublicUrl(): void {
 }
 
 export function getPublicUrl(): string {
-  return activeTunnelUrl || config.publicUrl || localFallbackUrl();
+  const publicUrl = activeTunnelUrl || config.publicUrl;
+
+  if (!publicUrl) {
+    throw new Error('A URL pública ainda não está disponível. Aguarde alguns instantes e tente novamente.');
+  }
+
+  return publicUrl;
+}
+
+export async function waitForPublicUrl(
+  timeoutMs: number = PUBLIC_URL_WAIT_TIMEOUT_MS
+): Promise<string> {
+  const currentUrl = activeTunnelUrl || config.publicUrl;
+  if (currentUrl) return currentUrl;
+
+  return new Promise<string>((resolve, reject) => {
+    const startedAt = Date.now();
+    const timer = setInterval(() => {
+      const publicUrl = activeTunnelUrl || config.publicUrl;
+
+      if (publicUrl) {
+        clearInterval(timer);
+        resolve(publicUrl);
+        return;
+      }
+
+      if (shuttingDown || Date.now() - startedAt >= timeoutMs) {
+        clearInterval(timer);
+        reject(
+          new Error('O link público está temporariamente indisponível. Aguarde um minuto e tente novamente.')
+        );
+      }
+    }, PUBLIC_URL_POLL_INTERVAL_MS);
+  });
 }
 
 export function isPublicUrlReady(): boolean {
